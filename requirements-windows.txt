@@ -1,0 +1,7 @@
+# Laptop Windows con GPU NVIDIA.
+# ORDEN OBLIGATORIO (ver SETUP_WINDOWS.md):
+#   1) pip install torch --index-url https://download.pytorch.org/whl/cu128
+#   2) pip install -r requirements-windows.txt
+# Si se instala esto primero, pip traería torch SOLO-CPU desde PyPI.
+-r requirements.txt
+numba-cuda[cu12]>=0.15   # target CUDA de Numba mantenido por NVIDIA (trae NVVM/NVRTC por pip, sin CUDA Toolkit)

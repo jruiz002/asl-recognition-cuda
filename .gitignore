@@ -1,0 +1,21 @@
+# Entornos
+.venv/
+venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.DS_Store
+
+# Datos pesados (el dataset se descarga o se copia por USB; ver SETUP_WINDOWS.md)
+data/raw/
+data/processed/
+data/bench_cache/
+*.zip
+
+# Artefactos del lab original (pesos, figuras)
+artifacts/
+
+# results/ y evidence/ SÍ se versionan (son la evidencia del proyecto)
+asl_subset.zip
+CONTEXTO_PROYECTO.md
+
