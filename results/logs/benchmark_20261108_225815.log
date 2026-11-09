@@ -1,0 +1,184 @@
+
+==============================================================================
+BENCHMARK PROYECTO 3 – 20261108_225815
+==============================================================================
+{
+  "fecha": "2026-11-08T22:58:15",
+  "sistema": "Windows 11 (AMD64)",
+  "python": "3.12.10",
+  "cpu": "13th Gen Intel(R) Core(TM) i9-13980HX",
+  "nucleos_fisicos": 24,
+  "nucleos_logicos": 32,
+  "ram_gb": 15.6,
+  "torch": "2.14.1+cu126",
+  "torch_hilos_intraop": 24,
+  "cuda_disponible": true,
+  "cuda_version_torch": "12.6",
+  "cudnn": 91002,
+  "numba": "0.68.1",
+  "numba_cuda": "0.30.4",
+  "numpy": "2.4.6",
+  "pillow": "11.3.0",
+  "pandas": "2.3.3",
+  "psutil": "7.2.2",
+  "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+  "gpu_memoria_gb": 8.0,
+  "gpu_sms": 24,
+  "gpu_compute_capability": "8.9",
+  "driver_nvidia": "555.97",
+  "gpu_smi": "NVIDIA GeForce RTX 4060 Laptop GPU",
+  "argumentos": {
+    "only": "parallel",
+    "runs": "5",
+    "epochs": "6",
+    "sample": "None",
+    "experiments": "['cnn_base_aug']",
+    "threads": "None",
+    "workers": "None",
+    "loader_workers": "4",
+    "no_warmup": "False",
+    "data_root": "None",
+    "fresh": "False",
+    "no_plots": "False"
+  }
+}
+
+Imágenes: {'test': 2610, 'train': 12180, 'validation': 2610} · clases: 29 · épocas: 6 · corridas: 5
+[monitor] nvidia-smi registrando en C:\p3\asl-recognition-cuda\evidence\nvidia_smi_20261108_225815.csv
+[monitor] uso de CPU por núcleo en C:\p3\asl-recognition-cuda\evidence\cpu_por_nucleo_20261108_225815.csv
+
+==============================================================================
+PARALELA · cnn_base_aug · calentamiento
+==============================================================================
+  [paralelo] GPU detectada: NVIDIA GeForce RTX 4060 Laptop GPU (CUDA 12.6)
+  [paralelo] preparación con 32 procesos de CPU
+  [paralelo] augmentation con 4 workers de CPU
+  [paralelo]   cnn_base_aug epoch=1/1 loss=3.1032 val_f1=0.2291
+  [paralelo] cierre de workers (no contabilizado): 1.48 s
+  tiempos (s): preparacion_cpu=6.86 · transferencia_h2d=0.04 · entrenamiento=8.46 · evaluacion=0.52 · total=17.06
+
+==============================================================================
+PARALELA · cnn_base_aug · corrida 1/5
+==============================================================================
+  [paralelo] GPU detectada: NVIDIA GeForce RTX 4060 Laptop GPU (CUDA 12.6)
+  [paralelo] preparación con 32 procesos de CPU
+  [paralelo] augmentation con 4 workers de CPU
+  [paralelo]   cnn_base_aug epoch=1/6 loss=3.1028 val_f1=0.2458
+  [paralelo]   cnn_base_aug epoch=2/6 loss=2.2953 val_f1=0.4425
+  [paralelo]   cnn_base_aug epoch=3/6 loss=1.8173 val_f1=0.5669
+  [paralelo]   cnn_base_aug epoch=4/6 loss=1.5411 val_f1=0.5874
+  [paralelo]   cnn_base_aug epoch=5/6 loss=1.3312 val_f1=0.7396
+  [paralelo]   cnn_base_aug epoch=6/6 loss=1.1957 val_f1=0.6866
+  [paralelo] cierre de workers (no contabilizado): 1.32 s
+  tiempos (s): preparacion_cpu=4.57 · transferencia_h2d=0.04 · entrenamiento=27.29 · evaluacion=0.47 · total=32.40
+
+==============================================================================
+PARALELA · cnn_base_aug · corrida 2/5
+==============================================================================
+  [paralelo] GPU detectada: NVIDIA GeForce RTX 4060 Laptop GPU (CUDA 12.6)
+  [paralelo] preparación con 32 procesos de CPU
+  [paralelo] augmentation con 4 workers de CPU
+  [paralelo]   cnn_base_aug epoch=1/6 loss=3.1139 val_f1=0.2195
+  [paralelo]   cnn_base_aug epoch=2/6 loss=2.3276 val_f1=0.4377
+  [paralelo]   cnn_base_aug epoch=3/6 loss=1.8659 val_f1=0.5299
+  [paralelo]   cnn_base_aug epoch=4/6 loss=1.5735 val_f1=0.6341
+  [paralelo]   cnn_base_aug epoch=5/6 loss=1.3846 val_f1=0.7110
+  [paralelo]   cnn_base_aug epoch=6/6 loss=1.2546 val_f1=0.6682
+  [paralelo] cierre de workers (no contabilizado): 1.50 s
+  tiempos (s): preparacion_cpu=4.98 · transferencia_h2d=0.04 · entrenamiento=29.60 · evaluacion=1.24 · total=35.91
+
+==============================================================================
+PARALELA · cnn_base_aug · corrida 3/5
+==============================================================================
+  [paralelo] GPU detectada: NVIDIA GeForce RTX 4060 Laptop GPU (CUDA 12.6)
+  [paralelo] preparación con 32 procesos de CPU
+  [paralelo] augmentation con 4 workers de CPU
+  [paralelo]   cnn_base_aug epoch=1/6 loss=3.0969 val_f1=0.2588
+  [paralelo]   cnn_base_aug epoch=2/6 loss=2.2769 val_f1=0.4512
+  [paralelo]   cnn_base_aug epoch=3/6 loss=1.8007 val_f1=0.5528
+  [paralelo]   cnn_base_aug epoch=4/6 loss=1.4997 val_f1=0.6705
+  [paralelo]   cnn_base_aug epoch=5/6 loss=1.3167 val_f1=0.7142
+  [paralelo]   cnn_base_aug epoch=6/6 loss=1.1759 val_f1=0.7188
+  [paralelo] cierre de workers (no contabilizado): 1.81 s
+  tiempos (s): preparacion_cpu=4.86 · transferencia_h2d=0.04 · entrenamiento=32.31 · evaluacion=0.75 · total=37.99
+
+==============================================================================
+PARALELA · cnn_base_aug · corrida 4/5
+==============================================================================
+  [paralelo] GPU detectada: NVIDIA GeForce RTX 4060 Laptop GPU (CUDA 12.6)
+  [paralelo] preparación con 32 procesos de CPU
+  [paralelo] augmentation con 4 workers de CPU
+  [paralelo]   cnn_base_aug epoch=1/6 loss=3.1124 val_f1=0.2300
+  [paralelo]   cnn_base_aug epoch=2/6 loss=2.2959 val_f1=0.4447
+  [paralelo]   cnn_base_aug epoch=3/6 loss=1.7851 val_f1=0.6064
+  [paralelo]   cnn_base_aug epoch=4/6 loss=1.5127 val_f1=0.6237
+  [paralelo]   cnn_base_aug epoch=5/6 loss=1.3452 val_f1=0.7200
+  [paralelo]   cnn_base_aug epoch=6/6 loss=1.1969 val_f1=0.7185
+  [paralelo] cierre de workers (no contabilizado): 1.94 s
+  tiempos (s): preparacion_cpu=5.00 · transferencia_h2d=0.04 · entrenamiento=34.62 · evaluacion=0.84 · total=40.56
+
+==============================================================================
+PARALELA · cnn_base_aug · corrida 5/5
+==============================================================================
+  [paralelo] GPU detectada: NVIDIA GeForce RTX 4060 Laptop GPU (CUDA 12.6)
+  [paralelo] preparación con 32 procesos de CPU
+  [paralelo] augmentation con 4 workers de CPU
+  [paralelo]   cnn_base_aug epoch=1/6 loss=3.0990 val_f1=0.2213
+  [paralelo]   cnn_base_aug epoch=2/6 loss=2.2836 val_f1=0.3954
+  [paralelo]   cnn_base_aug epoch=3/6 loss=1.8172 val_f1=0.5798
+  [paralelo]   cnn_base_aug epoch=4/6 loss=1.5247 val_f1=0.6463
+  [paralelo]   cnn_base_aug epoch=5/6 loss=1.3282 val_f1=0.7207
+  [paralelo]   cnn_base_aug epoch=6/6 loss=1.1736 val_f1=0.7006
+  [paralelo] cierre de workers (no contabilizado): 1.92 s
+  tiempos (s): preparacion_cpu=5.48 · transferencia_h2d=0.04 · entrenamiento=36.50 · evaluacion=1.30 · total=43.37
+
+==============================================================================
+RESUMEN
+==============================================================================
+# Tiempos por fase y speedup
+
+Fuente: `tiempos.csv` · media ± desviación estándar en segundos · speedup = t_secuencial / t_paralela
+
+## cnn_base_aug
+
+| Fase | Secuencial (s) | Paralela (s) | Speedup |
+|---|---:|---:|---:|
+| Preparación (CPU) | 13.53 ± 6.58 | 4.98 ± 0.33 | 2.72× |
+| Transferencia H2D | 0.00 ± 0.00 | 0.04 ± 0.00 | – |
+| Entrenamiento | 183.47 ± 26.30 | 32.06 ± 3.71 | 5.72× |
+| Evaluación | 14.24 ± 1.65 | 0.92 ± 0.35 | 15.50× |
+| Total | 211.28 ± 29.13 | 38.04 ± 4.22 | **5.55×** |
+| ↳ Carga de lotes (CPU) (incluida en entrenamiento) | 73.88 ± 6.70 | 0.00 ± 0.00 | – |
+| ↳ Kernel normalización (incluida en entrenamiento) | 0.00 ± 0.00 | 1.74 ± 0.26 | – |
+| ↳ H2D en el bucle (incluida en entrenamiento) | 0.00 ± 0.00 | 0.70 ± 0.11 | – |
+
+Calidad del modelo (promedio de las corridas, conjunto de prueba):
+
+| Versión | Accuracy | Macro F1 |
+|---|---:|---:|
+| paralela | 0.7329 | 0.7300 |
+| secuencial | 0.7559 | 0.7530 |
+
+## cnn_reg_drop035
+
+| Fase | Secuencial (s) | Paralela (s) | Speedup |
+|---|---:|---:|---:|
+| Preparación (CPU) | 8.14 ± 0.44 | 4.25 ± 0.59 | 1.91× |
+| Transferencia H2D | 0.00 ± 0.00 | 0.05 ± 0.00 | – |
+| Entrenamiento | 100.76 ± 7.69 | 6.49 ± 1.19 | 15.52× |
+| Evaluación | 8.61 ± 0.54 | 0.46 ± 0.05 | 18.60× |
+| Total | 117.53 ± 8.49 | 11.28 ± 1.80 | **10.42×** |
+| ↳ Carga de lotes (CPU) (incluida en entrenamiento) | 5.72 ± 0.33 | 0.00 ± 0.00 | – |
+| ↳ Kernel normalización (incluida en entrenamiento) | 0.00 ± 0.00 | 0.21 ± 0.12 | – |
+| ↳ H2D en el bucle (incluida en entrenamiento) | 0.00 ± 0.00 | 0.00 ± 0.00 | – |
+
+Calidad del modelo (promedio de las corridas, conjunto de prueba):
+
+| Versión | Accuracy | Macro F1 |
+|---|---:|---:|
+| paralela | 0.9455 | 0.9451 |
+| secuencial | 0.9130 | 0.9118 |
+
+Gráficas en C:\p3\asl-recognition-cuda\results\figuras
+
+Log completo: C:\p3\asl-recognition-cuda\results\logs\benchmark_20261108_225815.log

@@ -1,0 +1,191 @@
+
+==============================================================================
+BENCHMARK PROYECTO 3 – 20261108_222830
+==============================================================================
+{
+  "fecha": "2026-11-08T22:28:30",
+  "sistema": "Windows 11 (AMD64)",
+  "python": "3.12.10",
+  "cpu": "13th Gen Intel(R) Core(TM) i9-13980HX",
+  "nucleos_fisicos": 24,
+  "nucleos_logicos": 32,
+  "ram_gb": 15.6,
+  "torch": "2.14.1+cu126",
+  "torch_hilos_intraop": 24,
+  "cuda_disponible": true,
+  "cuda_version_torch": "12.6",
+  "cudnn": 91002,
+  "numba": "0.68.1",
+  "numba_cuda": "0.30.4",
+  "numpy": "2.4.6",
+  "pillow": "11.3.0",
+  "pandas": "2.3.3",
+  "psutil": "7.2.2",
+  "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+  "gpu_memoria_gb": 8.0,
+  "gpu_sms": 24,
+  "gpu_compute_capability": "8.9",
+  "driver_nvidia": "555.97",
+  "gpu_smi": "NVIDIA GeForce RTX 4060 Laptop GPU",
+  "argumentos": {
+    "only": "both",
+    "runs": "5",
+    "epochs": "6",
+    "sample": "None",
+    "experiments": "['cnn_base_aug']",
+    "threads": "None",
+    "workers": "None",
+    "no_warmup": "False",
+    "data_root": "None",
+    "fresh": "False",
+    "no_plots": "False"
+  }
+}
+
+Imágenes: {'test': 2610, 'train': 12180, 'validation': 2610} · clases: 29 · épocas: 6 · corridas: 5
+[monitor] nvidia-smi registrando en C:\p3\asl-recognition-cuda\evidence\nvidia_smi_20261108_222830.csv
+[monitor] uso de CPU por núcleo en C:\p3\asl-recognition-cuda\evidence\cpu_por_nucleo_20261108_222830.csv
+
+==============================================================================
+SECUENCIAL · cnn_base_aug · calentamiento
+==============================================================================
+Caché test_64: 2,000/2,610
+Caché test_64: 2,610/2,610
+Caché train_64: 2,000/12,180
+Caché train_64: 4,000/12,180
+Caché train_64: 6,000/12,180
+Caché train_64: 8,000/12,180
+Caché train_64: 10,000/12,180
+Caché train_64: 12,000/12,180
+Caché train_64: 12,180/12,180
+Caché validation_64: 2,000/2,610
+Caché validation_64: 2,610/2,610
+  [secuencial] cnn_base_aug epoch=1/1 loss=3.1048 val_f1=0.2663
+  tiempos (s): preparacion_cpu=11.26 · transferencia_h2d=0.00 · entrenamiento=16.53 · evaluacion=2.96 · total=31.94
+
+==============================================================================
+SECUENCIAL · cnn_base_aug · corrida 1/5
+==============================================================================
+Caché test_64: 2,000/2,610
+Caché test_64: 2,610/2,610
+Caché train_64: 2,000/12,180
+Caché train_64: 4,000/12,180
+Caché train_64: 6,000/12,180
+Caché train_64: 8,000/12,180
+Caché train_64: 10,000/12,180
+Caché train_64: 12,000/12,180
+Caché train_64: 12,180/12,180
+Caché validation_64: 2,000/2,610
+Caché validation_64: 2,610/2,610
+  [secuencial] cnn_base_aug epoch=1/6 loss=3.1048 val_f1=0.2663
+  [secuencial] cnn_base_aug epoch=2/6 loss=2.2442 val_f1=0.4839
+  [secuencial] cnn_base_aug epoch=3/6 loss=1.7114 val_f1=0.5387
+  [secuencial] cnn_base_aug epoch=4/6 loss=1.4335 val_f1=0.6655
+  [secuencial] cnn_base_aug epoch=5/6 loss=1.2711 val_f1=0.7308
+  [secuencial] cnn_base_aug epoch=6/6 loss=1.1236 val_f1=0.7356
+  tiempos (s): preparacion_cpu=8.75 · transferencia_h2d=0.00 · entrenamiento=144.88 · evaluacion=12.04 · total=165.71
+
+==============================================================================
+SECUENCIAL · cnn_base_aug · corrida 2/5
+==============================================================================
+Caché test_64: 2,000/2,610
+Caché test_64: 2,610/2,610
+Caché train_64: 2,000/12,180
+Caché train_64: 4,000/12,180
+Caché train_64: 6,000/12,180
+Caché train_64: 8,000/12,180
+Caché train_64: 10,000/12,180
+Caché train_64: 12,000/12,180
+Caché train_64: 12,180/12,180
+Caché validation_64: 2,000/2,610
+Caché validation_64: 2,610/2,610
+  [secuencial] cnn_base_aug epoch=1/6 loss=3.1048 val_f1=0.2663
+  [secuencial] cnn_base_aug epoch=2/6 loss=2.2442 val_f1=0.4839
+  [secuencial] cnn_base_aug epoch=3/6 loss=1.7114 val_f1=0.5387
+  [secuencial] cnn_base_aug epoch=4/6 loss=1.4335 val_f1=0.6655
+  [secuencial] cnn_base_aug epoch=5/6 loss=1.2711 val_f1=0.7308
+  [secuencial] cnn_base_aug epoch=6/6 loss=1.1236 val_f1=0.7356
+  tiempos (s): preparacion_cpu=10.08 · transferencia_h2d=0.00 · entrenamiento=208.90 · evaluacion=15.59 · total=234.60
+
+==============================================================================
+SECUENCIAL · cnn_base_aug · corrida 3/5
+==============================================================================
+Caché test_64: 2,000/2,610
+Caché test_64: 2,610/2,610
+Caché train_64: 2,000/12,180
+Caché train_64: 4,000/12,180
+Caché train_64: 6,000/12,180
+Caché train_64: 8,000/12,180
+Caché train_64: 10,000/12,180
+Caché train_64: 12,000/12,180
+Caché train_64: 12,180/12,180
+Caché validation_64: 2,000/2,610
+Caché validation_64: 2,610/2,610
+  [secuencial] cnn_base_aug epoch=1/6 loss=3.1048 val_f1=0.2663
+  [secuencial] cnn_base_aug epoch=2/6 loss=2.2442 val_f1=0.4839
+  [secuencial] cnn_base_aug epoch=3/6 loss=1.7114 val_f1=0.5387
+  [secuencial] cnn_base_aug epoch=4/6 loss=1.4335 val_f1=0.6655
+  [secuencial] cnn_base_aug epoch=5/6 loss=1.2711 val_f1=0.7308
+  [secuencial] cnn_base_aug epoch=6/6 loss=1.1236 val_f1=0.7356
+  tiempos (s): preparacion_cpu=24.88 · transferencia_h2d=0.00 · entrenamiento=177.67 · evaluacion=14.27 · total=216.98
+
+==============================================================================
+SECUENCIAL · cnn_base_aug · corrida 4/5
+==============================================================================
+Caché test_64: 2,000/2,610
+Caché test_64: 2,610/2,610
+Caché train_64: 2,000/12,180
+Caché train_64: 4,000/12,180
+Caché train_64: 6,000/12,180
+Caché train_64: 8,000/12,180
+Caché train_64: 10,000/12,180
+Caché train_64: 12,000/12,180
+Caché train_64: 12,180/12,180
+Caché validation_64: 2,000/2,610
+Caché validation_64: 2,610/2,610
+  [secuencial] cnn_base_aug epoch=1/6 loss=3.1048 val_f1=0.2663
+  [secuencial] cnn_base_aug epoch=2/6 loss=2.2442 val_f1=0.4839
+  [secuencial] cnn_base_aug epoch=3/6 loss=1.7114 val_f1=0.5387
+  [secuencial] cnn_base_aug epoch=4/6 loss=1.4335 val_f1=0.6655
+  [secuencial] cnn_base_aug epoch=5/6 loss=1.2711 val_f1=0.7308
+  [secuencial] cnn_base_aug epoch=6/6 loss=1.1236 val_f1=0.7356
+  tiempos (s): preparacion_cpu=13.48 · transferencia_h2d=0.00 · entrenamiento=207.41 · evaluacion=16.04 · total=236.94
+
+==============================================================================
+SECUENCIAL · cnn_base_aug · corrida 5/5
+==============================================================================
+Caché test_64: 2,000/2,610
+Caché test_64: 2,610/2,610
+Caché train_64: 2,000/12,180
+Caché train_64: 4,000/12,180
+Caché train_64: 6,000/12,180
+Caché train_64: 8,000/12,180
+Caché train_64: 10,000/12,180
+Caché train_64: 12,000/12,180
+Caché train_64: 12,180/12,180
+Caché validation_64: 2,000/2,610
+Caché validation_64: 2,610/2,610
+  [secuencial] cnn_base_aug epoch=1/6 loss=3.1048 val_f1=0.2663
+  [secuencial] cnn_base_aug epoch=2/6 loss=2.2442 val_f1=0.4839
+  [secuencial] cnn_base_aug epoch=3/6 loss=1.7114 val_f1=0.5387
+  [secuencial] cnn_base_aug epoch=4/6 loss=1.4335 val_f1=0.6655
+  [secuencial] cnn_base_aug epoch=5/6 loss=1.2711 val_f1=0.7308
+  [secuencial] cnn_base_aug epoch=6/6 loss=1.1236 val_f1=0.7356
+  tiempos (s): preparacion_cpu=10.44 · transferencia_h2d=0.00 · entrenamiento=178.47 · evaluacion=13.27 · total=202.19
+
+==============================================================================
+PARALELA · cnn_base_aug · calentamiento
+==============================================================================
+  [paralelo] GPU detectada: NVIDIA GeForce RTX 4060 Laptop GPU (CUDA 12.6)
+  [paralelo] preparación con 32 procesos de CPU
+  [paralelo] augmentation con 8 workers de CPU
+  [paralelo]   cnn_base_aug epoch=1/1 loss=3.1212 val_f1=0.2284
+  [paralelo] cierre de workers (no contabilizado): 2.50 s
+  tiempos (s): preparacion_cpu=5.92 · transferencia_h2d=0.25 · entrenamiento=20.48 · evaluacion=0.19 · total=27.03
+
+==============================================================================
+PARALELA · cnn_base_aug · corrida 1/5
+==============================================================================
+  [paralelo] GPU detectada: NVIDIA GeForce RTX 4060 Laptop GPU (CUDA 12.6)
+  [paralelo] preparación con 32 procesos de CPU
+  [paralelo] augmentation con 8 workers de CPU

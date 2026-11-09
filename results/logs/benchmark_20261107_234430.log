@@ -1,0 +1,179 @@
+
+==============================================================================
+BENCHMARK PROYECTO 3 – 20261107_234430
+==============================================================================
+{
+  "fecha": "2026-11-07T23:44:30",
+  "sistema": "Windows 11 (AMD64)",
+  "python": "3.12.10",
+  "cpu": "13th Gen Intel(R) Core(TM) i9-13980HX",
+  "nucleos_fisicos": 24,
+  "nucleos_logicos": 32,
+  "ram_gb": 15.6,
+  "torch": "2.14.1+cu126",
+  "torch_hilos_intraop": 24,
+  "cuda_disponible": true,
+  "cuda_version_torch": "12.6",
+  "cudnn": 91002,
+  "numba": "0.68.1",
+  "numba_cuda": "0.30.4",
+  "numpy": "2.4.6",
+  "pillow": "11.3.0",
+  "pandas": "2.3.3",
+  "psutil": "7.2.2",
+  "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+  "gpu_memoria_gb": 8.0,
+  "gpu_sms": 24,
+  "gpu_compute_capability": "8.9",
+  "driver_nvidia": "555.97",
+  "gpu_smi": "NVIDIA GeForce RTX 4060 Laptop GPU",
+  "argumentos": {
+    "only": "both",
+    "runs": "5",
+    "epochs": "6",
+    "sample": "None",
+    "experiments": "None",
+    "threads": "None",
+    "workers": "None",
+    "no_warmup": "False",
+    "data_root": "None",
+    "fresh": "True",
+    "no_plots": "False"
+  }
+}
+
+Imágenes: {'test': 2610, 'train': 12180, 'validation': 2610} · clases: 29 · épocas: 6 · corridas: 5
+[monitor] nvidia-smi registrando en C:\p3\asl-recognition-cuda\evidence\nvidia_smi_20261107_234430.csv
+[monitor] uso de CPU por núcleo en C:\p3\asl-recognition-cuda\evidence\cpu_por_nucleo_20261107_234430.csv
+
+==============================================================================
+SECUENCIAL · cnn_reg_drop035 · calentamiento
+==============================================================================
+Caché test_64: 2,000/2,610
+Caché test_64: 2,610/2,610
+Caché train_64: 2,000/12,180
+Caché train_64: 4,000/12,180
+Caché train_64: 6,000/12,180
+Caché train_64: 8,000/12,180
+Caché train_64: 10,000/12,180
+Caché train_64: 12,000/12,180
+Caché train_64: 12,180/12,180
+Caché validation_64: 2,000/2,610
+Caché validation_64: 2,610/2,610
+  [secuencial] cnn_reg_drop035 epoch=1/1 loss=2.3975 val_f1=0.4971
+  tiempos (s): preparacion_cpu=78.96 · transferencia_h2d=0.00 · entrenamiento=20.81 · evaluacion=3.15 · total=105.13
+
+==============================================================================
+SECUENCIAL · cnn_reg_drop035 · corrida 1/5
+==============================================================================
+Caché test_64: 2,000/2,610
+Caché test_64: 2,610/2,610
+Caché train_64: 2,000/12,180
+Caché train_64: 4,000/12,180
+Caché train_64: 6,000/12,180
+Caché train_64: 8,000/12,180
+Caché train_64: 10,000/12,180
+Caché train_64: 12,000/12,180
+Caché train_64: 12,180/12,180
+Caché validation_64: 2,000/2,610
+Caché validation_64: 2,610/2,610
+  [secuencial] cnn_reg_drop035 epoch=1/6 loss=2.3975 val_f1=0.4971
+  [secuencial] cnn_reg_drop035 epoch=2/6 loss=1.0947 val_f1=0.6930
+  [secuencial] cnn_reg_drop035 epoch=3/6 loss=0.6409 val_f1=0.8431
+  [secuencial] cnn_reg_drop035 epoch=4/6 loss=0.4383 val_f1=0.9027
+  [secuencial] cnn_reg_drop035 epoch=5/6 loss=0.3109 val_f1=0.9126
+  [secuencial] cnn_reg_drop035 epoch=6/6 loss=0.2470 val_f1=0.8658
+  tiempos (s): preparacion_cpu=8.90 · transferencia_h2d=0.00 · entrenamiento=111.62 · evaluacion=8.83 · total=129.40
+
+==============================================================================
+SECUENCIAL · cnn_reg_drop035 · corrida 2/5
+==============================================================================
+Caché test_64: 2,000/2,610
+Caché test_64: 2,610/2,610
+Caché train_64: 2,000/12,180
+Caché train_64: 4,000/12,180
+Caché train_64: 6,000/12,180
+Caché train_64: 8,000/12,180
+Caché train_64: 10,000/12,180
+Caché train_64: 12,000/12,180
+Caché train_64: 12,180/12,180
+Caché validation_64: 2,000/2,610
+Caché validation_64: 2,610/2,610
+  [secuencial] cnn_reg_drop035 epoch=1/6 loss=2.3975 val_f1=0.4971
+  [secuencial] cnn_reg_drop035 epoch=2/6 loss=1.0947 val_f1=0.6930
+  [secuencial] cnn_reg_drop035 epoch=3/6 loss=0.6409 val_f1=0.8431
+  [secuencial] cnn_reg_drop035 epoch=4/6 loss=0.4383 val_f1=0.9027
+  [secuencial] cnn_reg_drop035 epoch=5/6 loss=0.3109 val_f1=0.9126
+  [secuencial] cnn_reg_drop035 epoch=6/6 loss=0.2470 val_f1=0.8658
+  tiempos (s): preparacion_cpu=8.04 · transferencia_h2d=0.00 · entrenamiento=105.71 · evaluacion=9.46 · total=123.23
+
+==============================================================================
+SECUENCIAL · cnn_reg_drop035 · corrida 3/5
+==============================================================================
+Caché test_64: 2,000/2,610
+Caché test_64: 2,610/2,610
+Caché train_64: 2,000/12,180
+Caché train_64: 4,000/12,180
+Caché train_64: 6,000/12,180
+Caché train_64: 8,000/12,180
+Caché train_64: 10,000/12,180
+Caché train_64: 12,000/12,180
+Caché train_64: 12,180/12,180
+Caché validation_64: 2,000/2,610
+Caché validation_64: 2,610/2,610
+  [secuencial] cnn_reg_drop035 epoch=1/6 loss=2.3975 val_f1=0.4971
+  [secuencial] cnn_reg_drop035 epoch=2/6 loss=1.0947 val_f1=0.6930
+  [secuencial] cnn_reg_drop035 epoch=3/6 loss=0.6409 val_f1=0.8431
+  [secuencial] cnn_reg_drop035 epoch=4/6 loss=0.4383 val_f1=0.9027
+  [secuencial] cnn_reg_drop035 epoch=5/6 loss=0.3109 val_f1=0.9126
+  [secuencial] cnn_reg_drop035 epoch=6/6 loss=0.2470 val_f1=0.8658
+  tiempos (s): preparacion_cpu=7.96 · transferencia_h2d=0.00 · entrenamiento=94.08 · evaluacion=8.17 · total=110.22
+
+==============================================================================
+SECUENCIAL · cnn_reg_drop035 · corrida 4/5
+==============================================================================
+Caché test_64: 2,000/2,610
+Caché test_64: 2,610/2,610
+Caché train_64: 2,000/12,180
+Caché train_64: 4,000/12,180
+Caché train_64: 6,000/12,180
+Caché train_64: 8,000/12,180
+Caché train_64: 10,000/12,180
+Caché train_64: 12,000/12,180
+Caché train_64: 12,180/12,180
+Caché validation_64: 2,000/2,610
+Caché validation_64: 2,610/2,610
+  [secuencial] cnn_reg_drop035 epoch=1/6 loss=2.3975 val_f1=0.4971
+  [secuencial] cnn_reg_drop035 epoch=2/6 loss=1.0947 val_f1=0.6930
+  [secuencial] cnn_reg_drop035 epoch=3/6 loss=0.6409 val_f1=0.8431
+  [secuencial] cnn_reg_drop035 epoch=4/6 loss=0.4383 val_f1=0.9027
+  [secuencial] cnn_reg_drop035 epoch=5/6 loss=0.3109 val_f1=0.9126
+  [secuencial] cnn_reg_drop035 epoch=6/6 loss=0.2470 val_f1=0.8658
+  tiempos (s): preparacion_cpu=7.93 · transferencia_h2d=0.00 · entrenamiento=98.22 · evaluacion=8.32 · total=114.49
+
+==============================================================================
+SECUENCIAL · cnn_reg_drop035 · corrida 5/5
+==============================================================================
+Caché test_64: 2,000/2,610
+Caché test_64: 2,610/2,610
+Caché train_64: 2,000/12,180
+Caché train_64: 4,000/12,180
+Caché train_64: 6,000/12,180
+Caché train_64: 8,000/12,180
+Caché train_64: 10,000/12,180
+Caché train_64: 12,000/12,180
+Caché train_64: 12,180/12,180
+Caché validation_64: 2,000/2,610
+Caché validation_64: 2,610/2,610
+  [secuencial] cnn_reg_drop035 epoch=1/6 loss=2.3975 val_f1=0.4971
+  [secuencial] cnn_reg_drop035 epoch=2/6 loss=1.0947 val_f1=0.6930
+  [secuencial] cnn_reg_drop035 epoch=3/6 loss=0.6409 val_f1=0.8431
+  [secuencial] cnn_reg_drop035 epoch=4/6 loss=0.4383 val_f1=0.9027
+  [secuencial] cnn_reg_drop035 epoch=5/6 loss=0.3109 val_f1=0.9126
+  [secuencial] cnn_reg_drop035 epoch=6/6 loss=0.2470 val_f1=0.8658
+  tiempos (s): preparacion_cpu=7.83 · transferencia_h2d=0.00 · entrenamiento=94.19 · evaluacion=8.26 · total=110.29
+
+==============================================================================
+PARALELA · cnn_reg_drop035 · calentamiento
+==============================================================================
+  [paralelo] GPU detectada: NVIDIA GeForce RTX 4060 Laptop GPU (CUDA 12.6)
