@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Proyecto 3 – Mejorando algoritmos con CUDA (ASL)</title>
+<style>
+  @page { size: A4; margin: 16mm 15mm 16mm 15mm; }
+  :root { --ink:#1b1b1b; --ink2:#55534e; --line:#d9d7d1; --accent:#0b6e4f; --soft:#f3f2ee; --blue:#2a78d6; --orange:#eb6834; }
+  body { font-family: "Segoe UI", Calibri, Arial, sans-serif; color: var(--ink); font-size: 10.3pt; line-height: 1.45; margin: 0; background:#fff; }
+  h1 { font-size: 21pt; margin: 0 0 4px; color: var(--accent); }
+  h2 { font-size: 14pt; color: var(--accent); border-bottom: 2px solid var(--accent); padding-bottom: 3px; margin: 22px 0 10px; break-after: avoid; }
+  h3 { font-size: 11.5pt; margin: 14px 0 6px; break-after: avoid; }
+  p { margin: 5px 0 8px; text-align: justify; }
+  table { border-collapse: collapse; width: 100%; margin: 6px 0 10px; font-size: 9.3pt; break-inside: avoid; }
+  th, td { border: 1px solid var(--line); padding: 4px 6px; vertical-align: top; }
+  th { background: var(--soft); text-align: left; }
+  td.n, th.n { text-align: right; white-space: nowrap; }
+  .tot td { font-weight: 700; background: #eef6f2; }
+  figure { margin: 8px 0 12px; break-inside: avoid; text-align: center; }
+  figure img { max-width: 100%; border: 1px solid var(--line); }
+  figcaption { font-size: 8.6pt; color: var(--ink2); margin-top: 3px; text-align: left; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .grid2 figure img { max-height: 255px; object-fit: contain; }
+  .cover { height: 245mm; display: flex; flex-direction: column; justify-content: center; break-after: page; }
+  .cover .course { color: var(--ink2); font-size: 11pt; }
+  .cover h1 { font-size: 26pt; margin: 18px 0 6px; }
+  .cover .sub { font-size: 14pt; color: var(--ink2); margin-bottom: 30px; }
+  .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 10px 0 14px; }
+  .kpi { border: 1px solid var(--line); border-left: 4px solid var(--accent); padding: 8px 10px; background: var(--soft); }
+  .kpi b { font-size: 18pt; display: block; color: var(--accent); }
+  .kpi span { font-size: 8.8pt; color: var(--ink2); }
+  .note { background: var(--soft); border-left: 3px solid var(--ink2); padding: 6px 10px; font-size: 9.2pt; margin: 8px 0; }
+  code { font-family: Consolas, monospace; font-size: 9pt; background: var(--soft); padding: 0 3px; }
+  pre { font-family: Consolas, monospace; font-size: 8.4pt; background: var(--soft); padding: 8px; border: 1px solid var(--line); white-space: pre; overflow: hidden; break-inside: avoid; }
+  ul, ol { margin: 4px 0 8px 18px; padding: 0; } li { margin: 2px 0; }
+  .pb { break-before: page; }
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="course">Universidad del Valle de Guatemala · Facultad de Ingeniería<br>
+  Departamento de Ciencias de la Computación · CC3069 Computación Paralela y Distribuida · Semestre II 2026</div>
+  <h1>Proyecto 3: Mejorando algoritmos con CUDA</h1>
+  <div class="sub">Reconocimiento del alfabeto ASL (Laboratorio 3 de Data Science)<br>Informe de rendimiento y análisis</div>
+  <table style="width:auto;font-size:10.5pt">
+    <tr><th>Integrante</th><th>Usuario GitHub</th></tr>
+    <tr><td>José Ruiz</td><td>jruiz002</td></tr>
+    <tr><td>Dilary Cruz</td><td>dils1809</td></tr>
+    <tr><td>Gerardo Fernández</td><td>GerardoFdez7</td></tr>
+  </table>
+  <p style="margin-top:24px;color:var(--ink2)">Repositorio: github.com/jruiz002/asl-recognition-cuda · Noviembre de 2026</p>
+</section>
+
+<h2>1. Resumen</h2>
+<p>Se tomó el pipeline de entrenamiento de redes convolucionales del Laboratorio 3 (PyTorch, 17 400 imágenes
+de 29 clases del alfabeto ASL) y se construyó una versión paralela con una separación estricta del trabajo:
+<b>la preparación de imágenes (lectura, decodificación JPEG, resize y augmentation) en el CPU multinúcleo</b> y
+<b>la matemática de la red (convoluciones, capas densas, backward, optimizador y un kernel CUDA propio) en la GPU
+con CUDA</b>. Ambas versiones se midieron en la misma laptop, con los mismos datos e hiperparámetros, en 5 corridas
+por versión más un calentamiento no contabilizado.</p>
+<div class="kpis">
+  <div class="kpi"><b>10,42×</b><span>speedup total en <code>cnn_reg_drop035</code><br>117,5 s → 11,3 s</span></div>
+  <div class="kpi"><b>5,55×</b><span>speedup total en <code>cnn_base_aug</code><br>211,3 s → 38,0 s</span></div>
+  <div class="kpi"><b>15,5× – 18,6×</b><span>speedup del entrenamiento y la evaluación en la GPU (<code>cnn_reg_drop035</code>)</span></div>
+</div>
+
+<h2>2. Entorno y metodología</h2>
+<table>
+  <tr><th>Componente</th><th>Detalle</th></tr>
+  <tr><td>CPU</td><td>Intel Core i9-13980HX · 24 núcleos (8 P-cores + 16 E-cores) · 32 procesadores lógicos · 15,6 GB de RAM</td></tr>
+  <tr><td>GPU</td><td>NVIDIA GeForce RTX 4060 Laptop · 8 GB · 24 SMs (3 072 núcleos CUDA) · compute capability 8.9 · driver 555.97</td></tr>
+  <tr><td>Software</td><td>Windows 11 · Python 3.12.10 · PyTorch 2.14.1+cu126 (CUDA 12.6, cuDNN 9.10) · Numba 0.68.1 + numba-cuda 0.30.4 · NumPy 2.4.6 · Pillow 11.3</td></tr>
+  <tr><td>Datos</td><td>Partición original del lab: 12 180 entrenamiento / 2 610 validación / 2 610 prueba · 64×64 RGB</td></tr>
+  <tr><td>Modelos</td><td><code>cnn_reg_drop035</code> (CNN con más convoluciones, sin augmentation) y <code>cnn_base_aug</code> (CNN con augmentation en cada época)</td></tr>
+  <tr><td>Protocolo</td><td>6 épocas fijas · batch 64 · AdamW · semilla 42 · caché reconstruida desde los JPEG en cada corrida · 1 calentamiento + 5 corridas · <code>time.perf_counter()</code> con <code>torch.cuda.synchronize()</code> y CUDA events</td></tr>
+</table>
+<p>El baseline secuencial es el código original del laboratorio (<code>src/neural.py</code>) forzado a CPU, con un
+solo proceso para los datos (<code>num_workers=0</code>) y los 8 hilos de PyTorch del lab. Solo se le agregaron
+cronómetros por fase. Todo se ejecuta con <code>python benchmark.py</code>, que corre ambas versiones y registra
+cada segundo el uso de la GPU (<code>nvidia-smi</code>) y cada 0,25 s el uso de cada núcleo del CPU, etiquetado con la fase activa.</p>
+
+<h2>3. Separación del pipeline: CPU para las imágenes, GPU para la red</h2>
+<table>
+  <tr><th style="width:23%">Fase</th><th style="width:16%">Hardware</th><th>Implementación (versión paralela)</th></tr>
+  <tr><td><b>FASE 1</b> · Preparación de imágenes</td><td>CPU, 32 procesos</td><td><code>proyecto3/parallel/cpu_prep.py</code>: <code>ProcessPoolExecutor</code> con un proceso por núcleo lógico; cada proceso decodifica bloques de 128 JPEG y escribe directamente en un <code>.npy</code> compartido (<code>numpy.memmap</code>), sin devolver píxeles por pickle. El resultado es idéntico bit a bit a la caché del lab.</td></tr>
+  <tr><td>Augmentation (<code>cnn_base_aug</code>)</td><td>CPU, 4 workers</td><td><code>DataLoader(num_workers=4, persistent_workers=True, pin_memory=True)</code>: los workers generan lotes <code>uint8</code> aumentados mientras la GPU entrena el lote anterior.</td></tr>
+  <tr><td>Transferencia CPU → GPU</td><td>Bus PCIe</td><td>Datos en <code>uint8</code> (1 byte por valor) desde memoria fijada con <code>non_blocking=True</code>. Sin augmentation, todo el conjunto se sube una sola vez y los lotes se arman dentro de la GPU.</td></tr>
+  <tr><td><b>FASE 2</b> · Entrenamiento y evaluación</td><td>GPU (CUDA)</td><td><code>proyecto3/parallel/gpu_train.py</code>: forward, pérdida, backward y AdamW con cuDNN/cuBLAS (<code>cudnn.benchmark=True</code>). <code>gpu_kernels.py</code>: kernel propio Numba que convierte <code>uint8 HWC</code> en <code>float32 CHW /255</code> (la capa de entrada de la red).</td></tr>
+</table>
+<h3>Distribución del trabajo en hilos, bloques y grid (kernel Numba)</h3>
+<p>Cada hilo procesa <b>un píxel</b> (sus 3 canales) de una imagen. Bloques de <b>16×16 = 256 hilos</b> (múltiplo de
+32, el tamaño de un warp) y grid de <b>(⌈W/16⌉, ⌈H/16⌉, N) = (4, 4, N)</b>: los ejes x/y recorren teselas de la imagen y
+el eje z recorre las imágenes del lote. Un lote de 64 imágenes lanza 1 024 bloques × 256 hilos = 262 144 hilos, uno
+por píxel. Las escrituras en el plano CHW son coalescentes (16 hilos × 4 B contiguos). El kernel comparte memoria
+(<code>__cuda_array_interface__</code>, sin copias) y stream con PyTorch.</p>
+
+<h2>4. Tabla comparativa de tiempos y speedup por fase</h2>
+<p>Media ± desviación estándar de 5 corridas, en segundos. Speedup = t<sub>secuencial</sub> / t<sub>paralela</sub>.</p>
+<div class="grid2">
+<table>
+  <tr><th colspan="4"><code>cnn_reg_drop035</code></th></tr>
+  <tr><th>Fase</th><th class="n">Secuencial</th><th class="n">Paralela</th><th class="n">Speedup</th></tr>
+  <tr><td>Preparación (CPU)</td><td class="n">8,14 ± 0,44</td><td class="n">4,25 ± 0,59</td><td class="n">1,91×</td></tr>
+  <tr><td>Transferencia H2D</td><td class="n">–</td><td class="n">0,05 ± 0,00</td><td class="n">–</td></tr>
+  <tr><td>Entrenamiento</td><td class="n">100,76 ± 7,69</td><td class="n">6,49 ± 1,19</td><td class="n">15,52×</td></tr>
+  <tr><td>Evaluación</td><td class="n">8,61 ± 0,54</td><td class="n">0,46 ± 0,05</td><td class="n">18,60×</td></tr>
+  <tr class="tot"><td>Total</td><td class="n">117,53 ± 8,49</td><td class="n">11,28 ± 1,80</td><td class="n">10,42×</td></tr>
+</table>
+<table>
+  <tr><th colspan="4"><code>cnn_base_aug</code></th></tr>
+  <tr><th>Fase</th><th class="n">Secuencial</th><th class="n">Paralela</th><th class="n">Speedup</th></tr>
+  <tr><td>Preparación (CPU)</td><td class="n">13,53 ± 6,58</td><td class="n">4,98 ± 0,33</td><td class="n">2,72×</td></tr>
+  <tr><td>Transferencia H2D</td><td class="n">–</td><td class="n">0,04 ± 0,00</td><td class="n">–</td></tr>
+  <tr><td>Entrenamiento</td><td class="n">183,47 ± 26,30</td><td class="n">32,06 ± 3,71</td><td class="n">5,72×</td></tr>
+  <tr><td>Evaluación</td><td class="n">14,24 ± 1,65</td><td class="n">0,92 ± 0,35</td><td class="n">15,50×</td></tr>
+  <tr class="tot"><td>Total</td><td class="n">211,28 ± 29,13</td><td class="n">38,04 ± 4,22</td><td class="n">5,55×</td></tr>
+</table>
+</div>
+<p>La transferencia H2D solo existe en la versión paralela: es un costo agregado (0,4 % del tiempo paralelo) incluido
+en el total. Sub-métricas del entrenamiento: en la versión secuencial, armar los lotes en el CPU cuesta 5,7 s
+(<code>cnn_reg_drop035</code>) y <b>73,9 s</b> (<code>cnn_base_aug</code>, por la augmentation); en la paralela, el kernel
+de normalización suma 0,21 s y 1,74 s.</p>
+<figure><img src="../results/figuras/02_speedup_por_fase.png"><figcaption>Figura 1. Speedup por fase y total.</figcaption></figure>
+<figure><img src="../results/figuras/01_tiempos_por_fase.png"><figcaption>Figura 2. Tiempo medio por fase, secuencial (azul) frente a paralela (naranja).</figcaption></figure>
+
+<h3>Calidad del modelo</h3>
+<table>
+  <tr><th>Experimento</th><th class="n">Secuencial: accuracy / macro F1</th><th class="n">Paralela: accuracy / macro F1</th></tr>
+  <tr><td><code>cnn_reg_drop035</code></td><td class="n">0,9130 / 0,9118</td><td class="n">0,9455 / 0,9451</td></tr>
+  <tr><td><code>cnn_base_aug</code></td><td class="n">0,7559 / 0,7530</td><td class="n">0,7329 / 0,7300</td></tr>
+</table>
+<p>La versión paralela forzada a CPU reproduce <b>exactamente</b> la pérdida de cada época y el F1 de la secuencial,
+así que la lógica es la misma. Las diferencias en la GPU (≤ 3,3 puntos, en ambos sentidos) vienen de que cuDNN suma
+en otro orden (la suma de punto flotante no es asociativa) y, en <code>cnn_base_aug</code>, de que cada worker usa su
+propio generador de augmentation. Con solo 6 épocas, eso cambia la trayectoria del entrenamiento.</p>
+
+<h3>Kernel CUDA propio (Numba) frente a NumPy</h3>
+<table>
+  <tr><th>Normalizar 12 180 imágenes (20 repeticiones)</th><th class="n">Media (ms)</th><th class="n">Speedup</th></tr>
+  <tr><td>A. CPU NumPy</td><td class="n">503,9</td><td class="n">1,00×</td></tr>
+  <tr><td>B. CPU NumPy + copia H2D en <code>float32</code></td><td class="n">809,2</td><td class="n">0,62×</td></tr>
+  <tr><td>C. Copia H2D en <code>uint8</code> + kernel Numba</td><td class="n">16,1</td><td class="n">31,4×</td></tr>
+  <tr><td>D. Kernel Numba (solo cómputo)</td><td class="n">3,2</td><td class="n">157,1×</td></tr>
+  <tr><td>E. PyTorch nativo en la GPU</td><td class="n">13,7</td><td class="n">36,8×</td></tr>
+</table>
+<p>Copiar <code>uint8</code> y normalizar en la GPU (C) es <b>50× más rápido</b> que normalizar en el CPU y copiar
+<code>float32</code> (B), porque cruza 4× menos bytes por PCIe. La salida es idéntica bit a bit a la de NumPy.</p>
+
+<h2 class="pb">5. Evidencia de uso de recursos por fase</h2>
+<p>La tabla se calculó cruzando por hora el registro de cada núcleo del CPU con el de <code>nvidia-smi</code>
+(solo corridas medidas y terminadas). "Núcleos activos" = procesadores lógicos con uso &gt; 50 %.</p>
+<table>
+  <tr><th>Versión · modelo</th><th>Fase</th><th class="n">CPU total</th><th class="n">Núcleos activos (medio / máx)</th><th class="n">GPU-Util medio / máx</th></tr>
+  <tr><td>Secuencial · reg</td><td>Preparación</td><td class="n">8 %</td><td class="n">1,4 / 12</td><td class="n">0 % / 0 %</td></tr>
+  <tr><td>Secuencial · reg</td><td>Entrenamiento</td><td class="n">32 %</td><td class="n">9,1 / 22</td><td class="n">0 % / 0 %</td></tr>
+  <tr><td>Paralela · reg</td><td>Preparación</td><td class="n">72 %</td><td class="n">24,8 / 32</td><td class="n">–</td></tr>
+  <tr><td>Paralela · reg</td><td>Entrenamiento</td><td class="n">13 %</td><td class="n">3,3 / 31</td><td class="n"><b>77 % / 98 %</b></td></tr>
+  <tr><td>Paralela · reg</td><td>Evaluación</td><td class="n">11 %</td><td class="n">2,9 / 5</td><td class="n">68 % / 97 %</td></tr>
+  <tr><td>Secuencial · aug</td><td>Entrenamiento</td><td class="n">33 %</td><td class="n">11,1 / 24</td><td class="n">0 % / 0 %</td></tr>
+  <tr><td>Paralela · aug</td><td>Preparación</td><td class="n">65 %</td><td class="n">21,9 / 32</td><td class="n">–</td></tr>
+  <tr><td>Paralela · aug</td><td>Entrenamiento</td><td class="n">25 %</td><td class="n">9,1 / 25</td><td class="n">14 % / 99 %</td></tr>
+</table>
+<figure><img src="../results/figuras/03_cpu_preparacion_por_nucleo.png"><figcaption>Figura 3. FASE 1: uso medio de cada uno de los 32 núcleos lógicos durante la preparación. Secuencial: ~1 núcleo (8 % total, el SO migra el proceso entre núcleos). Paralela: todos los núcleos (69 % total).</figcaption></figure>
+<figure><img src="../results/figuras/04_gpu_uso.png"><figcaption>Figura 4. Uso de la GPU durante todo el benchmark (nvidia-smi cada 1 s). Las versiones secuenciales no usan la GPU (0 %); la paralela de <code>cnn_reg_drop035</code> llega al 98 % y la de <code>cnn_base_aug</code> queda limitada por la augmentation en el CPU.</figcaption></figure>
+
+<h3>Capturas de los monitores de recursos</h3>
+<div class="grid2">
+  <figure><img src="../evidence/capturas/03_cpu_preparacion_secuencial.png"><figcaption>Captura 3. FASE 1 secuencial (lab original): pocos núcleos con carga.</figcaption></figure>
+  <figure><img src="../evidence/capturas/04_cpu_preparacion_paralela.png"><figcaption>Captura 4. FASE 1 paralela: los 32 procesadores lógicos ocupados.</figcaption></figure>
+  <figure><img src="../evidence/capturas/09_secuencial_entrenamiento_cpu.png"><figcaption>Captura 9. Entrenamiento secuencial de <code>cnn_base_aug</code>: CPU trabajando y nvidia-smi con la GPU en 0 % (P8, 0 MiB).</figcaption></figure>
+  <figure><img src="../evidence/capturas/05_gpu_entrenamiento_taskmgr.png"><figcaption>Captura 5. Entrenamiento en la GPU: nvidia-smi con GPU-Util 67 %, P0 y <code>python3.12.exe</code> como proceso CUDA (tipo C).</figcaption></figure>
+</div>
+<figure><img src="../evidence/capturas/10_paralela_entrenamiento_gpu.png" style="max-height:330px"><figcaption>Captura 10. Benchmark oficial, versión paralela de <code>cnn_reg_drop035</code>: GPU-Util 98 %, P0, 83 W; el log con "GPU detectada" y "preparación con 32 procesos de CPU"; y el CPU con una ráfaga en los 32 núcleos al empezar cada corrida (FASE 1) mientras la GPU entrena entre ráfagas (FASE 2).</figcaption></figure>
+<div class="grid2">
+  <figure><img src="../evidence/capturas/12_paralela_aug_cpu_y_gpu.png"><figcaption>Captura 12. <code>cnn_base_aug</code> en paralelo: GPU en P0 con el proceso CUDA, pero GPU-Util bajo (4 %) porque espera a los workers de augmentation del CPU.</figcaption></figure>
+  <figure><img src="../evidence/capturas/08_bench_kernel.png"><figcaption>Captura 8. Benchmark del kernel Numba: 3,2 ms frente a 503,9 ms de NumPy, con verificación bit a bit.</figcaption></figure>
+</div>
+<p class="note">Las 13 capturas, los registros completos (<code>evidence/cpu_por_nucleo_*.csv</code>,
+<code>evidence/nvidia_smi_*.csv</code>, <code>results/logs/</code>) y la tabla por fase de cada ejecución están en
+<code>evidence/EVIDENCIA.md</code>.</p>
+
+<h2 class="pb">6. Discusión técnica</h2>
+<h3>¿Por qué es más eficiente procesar las imágenes con los múltiples núcleos del CPU y delegar exclusivamente la matemática de la red a la GPU?</h3>
+<p>Porque son cargas con perfiles opuestos. El manejo de archivos es E/S de disco, llamadas al sistema operativo y
+decodificación JPEG (códigos Huffman de longitud variable, mucha ramificación): pocas tareas grandes e independientes,
+una por archivo. Eso encaja con el CPU, cuyos núcleos tienen predicción de saltos, cachés grandes y acceso al disco;
+la GPU ni siquiera puede leer archivos y, en la decodificación, sus warps divergirían. Al repartir los archivos entre
+los 32 hilos, el uso del CPU subió de ~8 % a ~72 % y la preparación se aceleró ~2×.</p>
+<p>La matemática de la red, en cambio, son millones de multiplicaciones y sumas idénticas y regulares (convoluciones
+convertidas en productos de matrices). Eso encaja con la GPU: miles de núcleos SIMT y gran ancho de banda de
+memoria. El entrenamiento se aceleró 15,5× con la GPU al 77 % de uso medio, mientras el CPU quedaba casi libre
+(~13 %). Además, la separación crea un pipeline: mientras la GPU entrena con el lote <i>k</i>, el CPU prepara el
+<i>k+1</i>.</p>
+
+<h3>¿Cómo permitió CUDA reducir o cambiar el tiempo de procesamiento?</h3>
+<ul>
+  <li><b>Redujo el tiempo total</b> 10,4× (<code>cnn_reg_drop035</code>) y 5,6× (<code>cnn_base_aug</code>). La mayor
+  ganancia está en el entrenamiento (15,5×) y la evaluación (18,6×), que eran el 93 % del tiempo secuencial.</li>
+  <li><b>Cambió la distribución del tiempo</b> (ley de Amdahl): en la versión secuencial el entrenamiento era el 85,7 %
+  del total; en la paralela bajó a 6,5 s y la preparación pasó de pesar el 6,9 % a pesar el 38 %. Al acelerar la parte
+  dominante, la siguiente pasa a ser el límite.</li>
+  <li><b>Mecanismos:</b> paralelismo masivo en cuDNN/cuBLAS, kernel propio con un hilo por píxel, datos residentes en la
+  memoria de la GPU (sin copias dentro del bucle), copias asíncronas desde memoria fijada y una sola sincronización
+  por época.</li>
+</ul>
+<p><b>Funciones y librerías adicionales para trabajar con la GPU:</b> <code>torch.cuda</code>
+(<code>is_available</code>, <code>device</code>, <code>synchronize</code>, <code>Event</code>), cuDNN
+(<code>torch.backends.cudnn.benchmark</code>), cuBLAS, <code>Tensor.pin_memory()</code> y
+<code>.to(device, non_blocking=True)</code>, <code>numba.cuda</code> (<code>@cuda.jit</code>, <code>cuda.grid</code>,
+<code>as_cuda_array</code>, <code>external_stream</code>), <code>numba-cuda</code> con <code>cuda-toolkit</code> 12.6 por pip
+(NVVM y nvJitLink, sin instalar el CUDA Toolkit) y <code>nvidia-smi</code> para el monitoreo. En el CPU:
+<code>concurrent.futures.ProcessPoolExecutor</code>, <code>numpy.memmap</code>, <code>DataLoader</code> con workers y
+<code>psutil</code>.</p>
+
+<h3>¿Qué factores justifican o limitan la utilización de CUDA?</h3>
+<table>
+  <tr><th style="width:50%">Lo justifican</th><th>Lo limitan (observado en este proyecto)</th></tr>
+  <tr><td>
+    <ul>
+      <li>Alta intensidad aritmética (~10 TFLOP por experimento) en operaciones regulares: ahí se logró 15–18×.</li>
+      <li>Trabajo repetido (épocas, experimentos): el costo fijo de CUDA se amortiza.</li>
+      <li>Los datos caben en la GPU (214 MB en <code>uint8</code> de 8 GB): se suben una sola vez (0,05 s).</li>
+      <li>Ecosistema maduro: PyTorch, cuDNN y cuBLAS; Numba permite kernels propios en Python.</li>
+    </ul>
+  </td><td>
+    <ul>
+      <li><b>Costos fijos:</b> con pocos datos (prueba con 20 imágenes por clase y 1 época), la versión paralela de <code>cnn_base_aug</code> fue más lenta (9,4 s frente a 2,3 s).</li>
+      <li><b>Etapas que siguen en el CPU:</b> con augmentation, la GPU espera al CPU (14 % de uso) y el entrenamiento solo acelera 5,7×.</li>
+      <li><b>Memoria del sistema:</b> con 16 GB de RAM, 8 workers con torch agotaron la memoria; se usaron 4.</li>
+      <li><b>Problema pequeño:</b> modelo de 143 K parámetros y lotes de 64 imágenes de 64×64 no saturan la GPU de forma continua.</li>
+      <li><b>Compatibilidad de versiones:</b> el driver 555.97 obligó a usar PyTorch <code>cu126</code> y a alinear Numba con su nvJitLink.</li>
+      <li><b>Determinismo:</b> la GPU suma en otro orden y los resultados numéricos no son idénticos a los del CPU.</li>
+    </ul>
+  </td></tr>
+</table>
+
+<h2>7. Problemas encontrados y decisiones</h2>
+<table>
+  <tr><th style="width:30%">Problema</th><th>Causa y solución</th></tr>
+  <tr><td>"El archivo de paginación es demasiado pequeño" al crear los 32 procesos</td><td>NumPy reservaba búferes de OpenBLAS para 32 hilos en cada proceso hijo (+23,2 GB de memoria comprometida). Con <code>OPENBLAS_NUM_THREADS=1</code> en los hijos: +0,8 GB y una preparación más rápida (3,85 s → 2,36 s).</td></tr>
+  <tr><td><code>DataLoader worker exited unexpectedly</code> (<code>WinError 6</code>)</td><td>8 workers × ~0,9 GB (cada uno importa torch) dejaron 0,75 GB de RAM libre. Se agregó <code>--loader-workers</code> y se midió con 4.</td></tr>
+  <tr><td>Kernel Numba: <code>np.row_stack</code> y <code>nvJitLinkError</code></td><td>NumPy 2.5 eliminó <code>row_stack</code> (se fijó NumPy &lt; 2.5) y el NVVM 12.9 de Numba no era compatible con el nvJitLink 12.6 de torch (se alineó todo a la serie 12.6).</td></tr>
+  <tr><td>Benchmark interrumpido</td><td>Las corridas completas ya estaban en <code>results/tiempos.csv</code>: se completó con <code>--only</code>/<code>--experiments</code>, sin repetir lo terminado. Total: 5 corridas por versión y modelo.</td></tr>
+</table>
+
+<h2>8. Conclusiones</h2>
+<ol>
+  <li>CUDA redujo el tiempo total <b>10,4×</b> en <code>cnn_reg_drop035</code> y <b>5,6×</b> en <code>cnn_base_aug</code>. Por fase: preparación 1,9–2,7× (CPU multinúcleo), entrenamiento 15,5× y 5,7×, evaluación 18,6× y 15,5× (GPU).</li>
+  <li>La separación CPU (archivos e imágenes) / GPU (matemática de la red) aprovecha cada procesador en lo que hace mejor, y los monitores lo confirman fase por fase.</li>
+  <li>Al acelerar la parte dominante, el cuello de botella se desplaza (Amdahl): la preparación pasó del 7 % al 38 % del tiempo, y con augmentation el CPU limita a la GPU.</li>
+  <li>CUDA conviene cuando el cómputo es grande y repetido; con cargas pequeñas dominan los costos fijos, y la memoria del sistema y la compatibilidad de versiones son restricciones reales.</li>
+</ol>
+<p class="note">Reproducción: <code>python scripts/check_env.py</code> → <code>python benchmark.py --fresh --loader-workers 4</code> →
+<code>python scripts/bench_kernel.py</code> → <code>python scripts/armar_evidencia.py</code>. Guía completa en
+<code>GUIA_EJECUCION.md</code>; análisis detallado en <code>docs/01</code>–<code>06</code> y <code>docs/decisiones_alcance.md</code>.</p>
+
+</body>
+</html>
