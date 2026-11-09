@@ -27,11 +27,21 @@ funciones de trabajo están a nivel de módulo (deben poder serializarse con pic
 from __future__ import annotations
 
 import os
-from concurrent.futures import ProcessPoolExecutor
-from pathlib import Path
 
-import numpy as np
-from PIL import Image
+# Los procesos hijos (ProcessPoolExecutor y workers del DataLoader) heredan el entorno
+# del proceso principal al crearse. Sin este límite, el NumPy de CADA hijo reserva
+# búferes para un hilo de OpenBLAS por núcleo lógico (32), aunque decodificar JPEG no
+# usa álgebra lineal. Medido en la laptop (i9-13980HX, 16 GB): con 32 procesos la
+# memoria comprometida subía +23,2 GB y Windows abortaba con "El archivo de paginación
+# es demasiado pequeño"; con 1 hilo sube +0,8 GB y la preparación es más rápida.
+# No afecta al proceso principal (su NumPy ya está cargado) ni a los hilos de PyTorch.
+os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
+
+from concurrent.futures import ProcessPoolExecutor   # noqa: E402
+from pathlib import Path   # noqa: E402
+
+import numpy as np   # noqa: E402
+from PIL import Image   # noqa: E402
 
 CHUNK_SIZE = 128   # imágenes por tarea: ~136 tareas para 17 400 imágenes
 
