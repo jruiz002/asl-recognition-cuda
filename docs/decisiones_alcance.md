@@ -19,7 +19,8 @@ Entre los dos se cubren **las dos fases** del pipeline (preparación en CPU y en
 dos patrones de transferencia (dataset residente en la GPU y streaming).
 
 **Por qué no los 9:** el tiempo en la laptop con GPU es muy limitado. La versión secuencial en CPU de
-cada experimento tarda varios minutos (TODO_RESULTADO: minutos medidos por corrida) y el protocolo exige
+cada experimento tarda varios minutos (medido: ~2,0 min por corrida en `cnn_reg_drop035` y ~3,5 min en
+`cnn_base_aug`, es decir ~10 y ~18 min por experimento solo en la versión secuencial) y el protocolo exige
 5 repeticiones + calentamiento para ambas versiones. Los 9 experimentos multiplicarían ese tiempo
 por ~4,5. Los otros 7 usan las mismas operaciones (convoluciones, capas lineales, la misma augmentation)
 y no agregan información nueva sobre la paralelización. `--runs` es configurable (5 por defecto, se puede
@@ -103,3 +104,57 @@ reduce 4× los bytes por PCIe. Su speedup propio frente a NumPy se mide aparte c
 - Windows: Python 3.12, PyTorch con CUDA (wheel oficial de pytorch.org) y `numba-cuda[cu12]`
   (el target CUDA mantenido por NVIDIA trae NVVM por pip y no necesita instalar el CUDA Toolkit).
 - Mac (desarrollo): Python 3.13 en `.venv`. El kernel se valida con `NUMBA_ENABLE_CUDASIM=1`. No se usa MPS.
+
+## D12. Ajustes de entorno en la laptop real (Windows 11, RTX 4060 Laptop, driver 555.97)
+
+Ninguno cambia la lógica; están en `requirements-windows.txt`:
+
+- **PyTorch `cu126` en vez de `cu128`:** el driver 555.97 soporta hasta CUDA 12.5 y los wheels `cu128` piden un
+  driver ≥ 570. No se actualizó el driver porque la laptop era prestada.
+- **NumPy < 2.5:** NumPy 2.5 eliminó `np.row_stack`, que numba-cuda 0.30.4 usa al compilar cualquier kernel.
+- **Piezas CUDA de Numba en la serie 12.6:** torch carga su propio nvJitLink 12.6 y el NVVM 12.9 de Numba
+  producía `nvJitLinkError ... may need newer version of nvJitLink`. Con todo en 12.6, torch y Numba conviven
+  en el mismo proceso (zero-copy verificado por `check_env.py` y los tests).
+- El repositorio se clonó **fuera de OneDrive** (`C:\p3`) para que la sincronización no interfiriera con la
+  caché del benchmark ni con los tiempos.
+
+## D13. Memoria: OpenBLAS en los procesos hijos y `--loader-workers 4`
+
+La laptop tiene **15,6 GB de RAM** y, con los programas abiertos, ~17 GB de memoria ya comprometida antes de
+empezar. Se midió la memoria comprometida del sistema durante el benchmark:
+
+| Situación | Memoria comprometida | Efecto |
+|---|---:|---|
+| 32 procesos de preparación, NumPy por defecto | **+23,2 GB** | Windows aborta: "El archivo de paginación es demasiado pequeño" |
+| 32 procesos con `OPENBLAS_NUM_THREADS=1` | **+0,8 GB** | Funciona, y la preparación pasa de 3,85 s a 2,36 s |
+| 8 workers del DataLoader (cada uno importa torch, ~0,9 GB) | 20,5 → 27,7 GB (RAM libre: 0,75 GB) | Un worker muere: `WinError 6` / `DataLoader worker exited unexpectedly` |
+| 4 workers (`--loader-workers 4`) | ~3,6 GB menos | Termina sin errores |
+
+- Cada proceso hijo reservaba búferes de OpenBLAS para 32 hilos aunque decodificar JPEG no usa álgebra lineal.
+  `proyecto3/parallel/cpu_prep.py` fija `OPENBLAS_NUM_THREADS=1` antes de crear los procesos (no afecta al
+  proceso principal ni a los hilos de PyTorch).
+- La versión paralela de `cnn_base_aug` se midió con **4 workers** de augmentation en lugar de 8. Es un ejemplo
+  concreto de un factor que limita el paralelismo: la RAM disponible.
+
+## D14. Benchmark completado en partes
+
+Las dos interrupciones de D13 ocurrieron en la versión paralela. Como las corridas completas se guardan una por
+una en `results/tiempos.csv`, no se repitieron: se completó con `--only parallel --experiments …` sin `--fresh`,
+con el mismo hardware, datos e hiperparámetros. Las 4 ejecuciones (`results/logs/`) suman exactamente 5 corridas
+medidas por versión y experimento. `scripts/armar_evidencia.py` junta todas las ejecuciones e ignora las
+muestras de las corridas interrumpidas.
+
+## D15. Captura 12 en una corrida extra
+
+Para tener tiempo de capturar el entrenamiento paralelo con augmentation, se hizo una corrida extra de
+`cnn_base_aug` con 12 épocas. **No forma parte de los promedios:** su fila y sus archivos se eliminaron de
+`results/` y `evidence/` después de la captura.
+
+## D16. Validación de corrección en la laptop
+
+- La versión paralela **forzada a CPU** (`CUDA_VISIBLE_DEVICES=-1`) reproduce exactamente la pérdida de cada
+  época y el F1 de la secuencial (2,8764 → 2,0477; F1 0,2622): la lógica es idéntica.
+- En la GPU las métricas difieren algunas décimas (por ejemplo F1 0,9451 frente a 0,9118 en `cnn_reg_drop035`;
+  0,7300 frente a 0,7530 en `cnn_base_aug`): cuDNN suma en otro orden (punto flotante no asociativo) y, en
+  `cnn_base_aug`, cada worker usa su propio generador de augmentation. Con solo 6 épocas, esas diferencias
+  cambian la trayectoria del entrenamiento; no indican un error.

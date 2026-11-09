@@ -66,12 +66,28 @@ Todos los tiempos de GPU se toman después de `torch.cuda.synchronize()`, así q
 
 ## 5.5 Resultados de la versión paralela
 
-> Se completan con `results/tabla_speedup.md` después de correr en la laptop.
+Medido en la laptop (i9-13980HX + RTX 4060 Laptop, 8 GB, 24 SMs), media ± desviación de 5 corridas
+(`results/tabla_speedup.md`). Preparación con 32 procesos; augmentation con 4 workers (`--loader-workers 4`, D13).
 
 | Experimento | Preparación (s) | H2D (s) | Entrenamiento (s) | Evaluación (s) | Total (s) |
 |---|---:|---:|---:|---:|---:|
-| `cnn_reg_drop035` | TODO_RESULTADO | TODO_RESULTADO | TODO_RESULTADO | TODO_RESULTADO | TODO_RESULTADO |
-| `cnn_base_aug` | TODO_RESULTADO | TODO_RESULTADO | TODO_RESULTADO | TODO_RESULTADO | TODO_RESULTADO |
+| `cnn_reg_drop035` | 4,25 ± 0,59 | 0,048 ± 0,004 | 6,49 ± 1,19 | 0,46 ± 0,05 | **11,28 ± 1,80** |
+| `cnn_base_aug` | 4,98 ± 0,33 | 0,043 ± 0,000 | 32,06 ± 3,71 | 0,92 ± 0,35 | **38,04 ± 4,22** |
 
-Kernel (`results/kernel_benchmark.md`): CPU NumPy TODO_RESULTADO ms frente a kernel Numba
-TODO_RESULTADO ms (TODO_RESULTADO×).
+Sub-métricas medidas con CUDA events (incluidas en el entrenamiento): kernel de normalización 0,21 s
+(`cnn_reg_drop035`) y 1,74 s (`cnn_base_aug`); copias H2D dentro del bucle 0 s (dataset residente) y 0,70 s
+(streaming de lotes aumentados).
+
+Kernel (`results/kernel_benchmark.md`, 12 180 imágenes, 20 repeticiones):
+
+| Variante | Media (ms) | Speedup frente a NumPy |
+|---|---:|---:|
+| A. CPU NumPy | 503,9 | 1,00× |
+| B. CPU NumPy + H2D `float32` | 809,2 | 0,62× |
+| C. H2D `uint8` + kernel Numba | 16,1 | **31,4×** |
+| D. Kernel Numba (solo cómputo) | 3,2 | **157,1×** |
+| E. PyTorch nativo en GPU | 13,7 | 36,8× |
+
+El kernel Numba solo calcula en **3,2 ms frente a 503,9 ms** de NumPy (157×). Incluyendo la copia, mover `uint8` y
+normalizar en la GPU (C, 16,1 ms) es **50× más rápido** que normalizar en el CPU y copiar `float32` (B, 809,2 ms),
+porque cruza 4× menos bytes por PCIe. La salida es idéntica bit a bit a la de NumPy.
