@@ -1,6 +1,6 @@
 # Evidencia de ejecución – Proyecto 3 (ASL + CUDA)
 
-Documento generado automáticamente por `scripts/armar_evidencia.py` el 2026-11-08 23:08.
+Documento generado automáticamente por `scripts/armar_evidencia.py` el 2026-11-08 23:20.
 Ejecuciones del benchmark incluidas: `20261107_234430`, `20261108_002048`, `20261108_222830`, `20261108_225815` (cada una con su log, su CSV de CPU por núcleo y su CSV de
 nvidia-smi con la misma marca de tiempo). Si hay más de una, es porque el benchmark oficial se completó en partes
 sobre el mismo `results/tiempos.csv`, con el mismo hardware, datos e hiperparámetros.
@@ -580,6 +580,10 @@ Tabla RESUMEN de speedup al final del benchmark.
 **Uso medio de cada núcleo durante la FASE 1 (secuencial vs paralela).**
 
 ![03_cpu_preparacion_por_nucleo.png](../results/figuras/03_cpu_preparacion_por_nucleo.png)
+
+**Mapa de calor del uso por núcleo a lo largo de la versión secuencial.**
+
+![03_cpu_nucleos_secuencial.png](../results/figuras/03_cpu_nucleos_secuencial.png)
 
 **Mapa de calor del uso por núcleo a lo largo de la versión paralela.**
 

@@ -170,17 +170,19 @@ def plot_speedup(data: pd.DataFrame, figure_dir: Path) -> None:
     plt.close(figure)
 
 
-def _latest(evidence_dir: Path, pattern: str) -> Path | None:
-    files = sorted(evidence_dir.glob(pattern))
-    return files[-1] if files else None
+def _load_cpu_samples(evidence_dir: Path) -> pd.DataFrame | None:
+    """Junta TODOS los ``cpu_por_nucleo_*.csv`` (el benchmark puede quedar repartido en varias ejecuciones)."""
+    files = sorted(evidence_dir.glob("cpu_por_nucleo_*.csv"))
+    if not files:
+        return None
+    return pd.concat([pd.read_csv(path, dtype={"corrida": str}) for path in files], ignore_index=True)
 
 
 def plot_cpu_cores(evidence_dir: Path, figure_dir: Path) -> None:
     """Mapa de calor núcleo × tiempo de la PRIMERA corrida medida de cada versión."""
-    path = _latest(evidence_dir, "cpu_por_nucleo_*.csv")
-    if path is None:
+    samples = _load_cpu_samples(evidence_dir)
+    if samples is None:
         return
-    samples = pd.read_csv(path)
     core_columns = [column for column in samples.columns if column.startswith("nucleo_")]
     for version in ("secuencial", "paralela"):
         frame = samples[(samples["version"] == version) & (samples["corrida"].astype(str) == "1")]
@@ -225,10 +227,9 @@ def plot_prep_cores(evidence_dir: Path, figure_dir: Path) -> None:
     Es la evidencia directa de la FASE 1: en la secuencial trabaja ~1 núcleo; en la
     paralela, todos. Promedia todas las muestras de la fase en todas las corridas medidas.
     """
-    path = _latest(evidence_dir, "cpu_por_nucleo_*.csv")
-    if path is None:
+    samples = _load_cpu_samples(evidence_dir)
+    if samples is None:
         return
-    samples = pd.read_csv(path)
     samples = samples[(samples["fase"] == "preparacion_cpu") & (samples["corrida"].astype(str) != "warmup")]
     versions = [version for version in ("secuencial", "paralela") if version in set(samples["version"])]
     if not versions:
@@ -256,14 +257,45 @@ def plot_prep_cores(evidence_dir: Path, figure_dir: Path) -> None:
 
 
 def plot_gpu(evidence_dir: Path, figure_dir: Path) -> None:
-    path = _latest(evidence_dir, "nvidia_smi_*.csv")
-    if path is None or path.stat().st_size == 0:
+    """Uso de la GPU en TODAS las ejecuciones del benchmark, una tras otra, con cada tramo rotulado."""
+    frames, segments = [], []
+    for path in sorted(evidence_dir.glob("nvidia_smi_2*.csv")):
+        if path.stat().st_size == 0:
+            continue
+        frame = pd.read_csv(path, skipinitialspace=True)
+        frame.columns = [column.split(" [")[0].strip() for column in frame.columns]
+        frame = frame[frame["timestamp"].astype(str) != "timestamp"]
+        if frame.empty:
+            continue
+        # Rótulo del tramo: versiones y modelos medidos en esa ejecución (del CSV de CPU con la misma marca).
+        label = path.stem.removeprefix("nvidia_smi_")
+        # Solo las combinaciones con al menos una corrida TERMINADA (línea "tiempos (s)" en el log), para no
+        # rotular intentos interrumpidos.
+        log = evidence_dir.parent / "results" / "logs" / f"benchmark_{label}.log"
+        if log.exists():
+            done, current = [], None
+            for line in log.read_text(encoding="utf-8", errors="replace").splitlines():
+                header = line.strip()
+                if " · " in header and header.split(" · ")[0] in ("SECUENCIAL", "PARALELA"):
+                    parts = header.split(" · ")
+                    # El calentamiento no cuenta: solo las corridas medidas ("corrida N/M").
+                    current = f"{parts[0].lower()} · {parts[1]}" if "corrida" in header else None
+                elif "tiempos (s)" in line and current and current not in done:
+                    done.append(current)
+            label = "\n".join(done) or label
+        start = sum(len(f) for f in frames)
+        segments.append((start, start + len(frame), label))
+        frames.append(frame)
+    if not frames:
         return
-    smi = pd.read_csv(path, skipinitialspace=True)
-    smi.columns = [column.split(" [")[0].strip() for column in smi.columns]
+    smi = pd.concat(frames, ignore_index=True)
     numeric = lambda column: pd.to_numeric(smi[column].astype(str).str.extract(r"([\d.]+)")[0], errors="coerce")
     seconds = np.arange(len(smi))
     figure, (ax_util, ax_mem) = plt.subplots(2, 1, figsize=(11, 5.5), sharex=True)
+    for start, end, label in segments:
+        for axis in (ax_util, ax_mem):
+            axis.axvline(start, color=INK_2, linestyle=":", linewidth=1)
+        ax_util.text((start + end) / 2, 103, label, ha="center", va="bottom", fontsize=7, color=INK_2)
     ax_util.plot(seconds, numeric("utilization.gpu"), color=COLORS["paralela"], linewidth=2)
     ax_util.set_ylabel("Uso de núcleos GPU (%)", color=INK_2)
     ax_util.set_ylim(0, 105)
@@ -272,7 +304,7 @@ def plot_gpu(evidence_dir: Path, figure_dir: Path) -> None:
     ax_mem.axhline(total, color=INK_2, linestyle="--", linewidth=1)
     ax_mem.text(seconds[-1] if len(seconds) else 0, total, " memoria total", va="bottom", ha="right", fontsize=8, color=INK_2)
     ax_mem.set_ylabel("Memoria usada (MiB)", color=INK_2)
-    ax_mem.set_xlabel("Segundos desde el inicio del benchmark (muestreo 1 s)", color=INK_2)
+    ax_mem.set_xlabel("Segundos de monitoreo (muestreo 1 s; ejecuciones del benchmark una tras otra)", color=INK_2)
     for axis in (ax_util, ax_mem):
         _style(axis)
     figure.suptitle(f"GPU durante el benchmark – {smi['name'].iloc[0] if 'name' in smi else ''}", color=INK)
