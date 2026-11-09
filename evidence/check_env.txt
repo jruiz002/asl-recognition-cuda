@@ -1,0 +1,36 @@
+{
+  "fecha": "2026-11-07T23:11:38",
+  "sistema": "Windows 11 (AMD64)",
+  "python": "3.12.10",
+  "cpu": "13th Gen Intel(R) Core(TM) i9-13980HX",
+  "nucleos_fisicos": 24,
+  "nucleos_logicos": 32,
+  "ram_gb": 15.6,
+  "torch": "2.14.1+cu126",
+  "torch_hilos_intraop": 24,
+  "cuda_disponible": true,
+  "cuda_version_torch": "12.6",
+  "cudnn": 91002,
+  "numba": "0.68.1",
+  "numba_cuda": "0.30.4",
+  "numpy": "2.4.6",
+  "pillow": "11.3.0",
+  "pandas": "2.3.3",
+  "psutil": "7.2.2",
+  "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+  "gpu_memoria_gb": 8.0,
+  "gpu_sms": 24,
+  "gpu_compute_capability": "8.9",
+  "driver_nvidia": "555.97",
+  "gpu_smi": "NVIDIA GeForce RTX 4060 Laptop GPU"
+}
+
+[OK]   CPU: 13th Gen Intel(R) Core(TM) i9-13980HX · 24 núcleos físicos / 32 lógicos
+[OK]   PyTorch ve la GPU: NVIDIA GeForce RTX 4060 Laptop GPU · CUDA 12.6 · cuDNN 91002 · matmul de prueba = 101274.8
+[OK]   Kernel Numba compilado y verificado (== NumPy) en NVIDIA GeForce RTX 4060 Laptop GPU
+[OK]   Interoperabilidad Numba ↔ PyTorch (zero-copy) verificada
+[OK]   Dataset y manifiesto: 17,400 imágenes encontradas ({'test': 2610, 'train': 12180, 'validation': 2610})
+[OK]   psutil disponible (monitor de núcleos)
+[OK]   nvidia-smi disponible
+
+TODO LISTO para el benchmark.
