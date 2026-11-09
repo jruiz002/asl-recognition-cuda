@@ -134,7 +134,7 @@ def run_parallel(
 
     train_loader = None
     if experiment.augment:
-        loader_workers = default_loader_workers()
+        loader_workers = config.loader_workers or default_loader_workers()
         train_loader = DataLoader(
             AugmentedUint8Dataset(caches["train"], labels["train"], config.seed),
             batch_size=config.batch_size,

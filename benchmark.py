@@ -62,6 +62,9 @@ def parse_args() -> argparse.Namespace:
                         help="hilos intra-op de PyTorch (por defecto, igual que el lab)")
     parser.add_argument("--workers", type=int, default=None,
                         help="procesos de CPU para la FASE 1 paralela (por defecto, todos)")
+    parser.add_argument("--loader-workers", type=int, default=None,
+                        help="workers del DataLoader para la augmentation (por defecto, hasta 8; "
+                             "con 16 GB de RAM en Windows usar 4)")
     parser.add_argument("--no-warmup", action="store_true", help="omite la corrida de calentamiento")
     parser.add_argument("--data-root", type=Path, default=None, help="carpeta del dataset (data/raw)")
     parser.add_argument("--fresh", action="store_true",
@@ -100,6 +103,7 @@ def main() -> int:
         sample_per_class=args.sample,
         threads=args.threads,
         workers=args.workers,
+        loader_workers=args.loader_workers,
     )
     if args.data_root:
         config.data_root = args.data_root

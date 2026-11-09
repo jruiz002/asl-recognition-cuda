@@ -38,6 +38,10 @@ class BenchmarkConfig:
     sample_per_class: int | None = None   # modo prueba rápida (--sample N)
     threads: int | None = None    # None = igual que el lab: min(8, hilos de torch)
     workers: int | None = None    # procesos CPU de la versión paralela (None = todos los núcleos)
+    # Workers del DataLoader para la augmentation (None = hasta 8). En Windows cada worker
+    # es un proceso que importa torch (~0,9 GB de memoria comprometida cada uno); con 16 GB
+    # de RAM, 8 workers agotaron la memoria en la laptop → se usa --loader-workers 4.
+    loader_workers: int | None = None
     manifest: Path = ROOT / "data" / "manifests" / "all.csv"
     data_root: Path = ROOT / "data" / "raw"
     results_dir: Path = ROOT / "results"
