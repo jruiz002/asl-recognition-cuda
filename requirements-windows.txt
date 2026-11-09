@@ -5,3 +5,16 @@
 # Si se instala esto primero, pip traería torch SOLO-CPU desde PyPI.
 -r requirements.txt
 numba-cuda[cu12]>=0.15   # target CUDA de Numba mantenido por NVIDIA (trae NVVM/NVRTC por pip, sin CUDA Toolkit)
+
+# --- Ajustes hechos en la laptop real (driver 555.97 = CUDA 12.5, RTX 4060 Laptop) ---
+# * torch se instaló con --index-url https://download.pytorch.org/whl/cu126 (cu128 exige driver >= 570).
+# * numpy 2.5 eliminó np.row_stack y rompe numba-cuda 0.30.4.
+# * Las piezas CUDA de Numba deben ser de la MISMA serie que torch (12.6): torch carga su nvJitLink 12.6
+#   y un NVVM 12.9 produce "nvJitLinkError ... may need newer version of nvJitLink library".
+numpy<2.5
+cuda-toolkit==12.6.*
+nvidia-cuda-nvcc-cu12==12.6.*
+nvidia-cuda-nvrtc-cu12==12.6.*
+nvidia-nvjitlink-cu12==12.6.*
+nvidia-cuda-runtime-cu12==12.6.*
+nvidia-cuda-cccl-cu12==12.6.*
